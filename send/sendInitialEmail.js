@@ -11,14 +11,23 @@ const GMAIL_PASS = process.env.GMAIL_PASS;
 
 // 3. 查詢尚未寄出的訂單
 async function fetchPendingOrders() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250524?has_sent_initial_email=eq.false`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/test2?has_sent_initial_email=eq.false`, {
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
       Prefer: 'return=representation'
     }
   });
-  return await res.json();
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('❌ 查詢失敗：', res.status, text);
+    return [];
+  }
+
+  const data = await res.json();
+  console.log("Fetched orders:", data);
+  return Array.isArray(data) ? data : [];
 }
 
 // 4. 寄信 function（會用 nodemailer + Gmail SMTP）
@@ -29,7 +38,7 @@ async function sendEmail(to, subject, html) {
   });
 
   await transporter.sendMail({
-    from: `"你的網站名稱" <${GMAIL_USER}>`,
+    from: `\"你的網站名稱\" <${GMAIL_USER}>`,
     to,
     subject,
     html
@@ -38,7 +47,7 @@ async function sendEmail(to, subject, html) {
 
 // 5. 更新寄信狀態
 async function markAsSent(id) {
-  await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250524?id=eq.${id}`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/test2?id=eq.${id}`, {
     method: 'PATCH',
     headers: {
       apikey: SUPABASE_KEY,
@@ -48,12 +57,17 @@ async function markAsSent(id) {
     },
     body: JSON.stringify({ has_sent_initial_email: true })
   });
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error('❌ 更新寄信狀態失敗：', res.status, text);
+  }
 }
 
 // 6. 主執行程式
 (async () => {
   const orders = await fetchPendingOrders();
-  console.log("Fetched orders:", orders);
+
   for (const order of orders) {
     const html = `
       <h2>感謝您的訂單！</h2>
