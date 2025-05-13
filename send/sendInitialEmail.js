@@ -1,9 +1,12 @@
 // 1. 載入所需套件
-console.log("✅ SUPABASE_URL =", process.env.SUPABASE_URL);
-console.log(\"🚀 程式開始執行！\");
+import dotenv from 'dotenv';
+dotenv.config();
+
+console.log("https://ohvbljqsvlkvfjeslsyr.supabase.co", process.env.SUPABASE_URL);
+console.log("🚀 程式開始執行！");
+
 import fetch from 'node-fetch';
 import nodemailer from 'nodemailer';
-import 'dotenv/config';
 
 // 2. Supabase & Gmail 設定（從環境變數讀取）
 const SUPABASE_URL = process.env.SUPABASE_URL;
