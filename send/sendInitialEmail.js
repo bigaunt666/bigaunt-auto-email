@@ -1,4 +1,5 @@
 // 1. 載入所需套件
+console.log("✅ SUPABASE_URL =", process.env.SUPABASE_URL);
 console.log(\"🚀 程式開始執行！\");
 import fetch from 'node-fetch';
 import nodemailer from 'nodemailer';
