@@ -53,6 +53,7 @@ async function markAsSent(id) {
 // 6. 主執行程式
 (async () => {
   const orders = await fetchPendingOrders();
+  console.log("Fetched orders:", orders);
   for (const order of orders) {
     const html = `
       <h2>感謝您的訂單！</h2>
