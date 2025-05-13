@@ -11,13 +11,16 @@ const GMAIL_PASS = process.env.GMAIL_PASS;
 
 // 3. 查詢尚未寄出的訂單
 async function fetchPendingOrders() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/test2?has_sent_initial_email=eq.false`, {
+  const url = `${SUPABASE_URL}/rest/v1/test2?has_sent_initial_email=eq.false`;
+  const res = await fetch(url, {
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
       Prefer: 'return=representation'
     }
   });
+
+  console.log("✅ Raw response status:", res.status);
 
   if (!res.ok) {
     const text = await res.text();
@@ -67,6 +70,11 @@ async function markAsSent(id) {
 // 6. 主執行程式
 (async () => {
   const orders = await fetchPendingOrders();
+
+  if (!Array.isArray(orders)) {
+    console.error("❌ 錯誤：orders 不是陣列，無法處理。");
+    return;
+  }
 
   for (const order of orders) {
     const html = `
