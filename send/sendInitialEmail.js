@@ -16,7 +16,7 @@ const GMAIL_PASS = process.env.GMAIL_PASS;
 
 // 3. 查詢尚未寄出的訂單
 async function fetchPendingOrders() {
-  const url = `${SUPABASE_URL}/rest/v1/test2?has_sent_initial_email=eq.false`;
+  const url = `${SUPABASE_URL}/rest/v1/test2?hasSentInitialEmail=eq.false`;
   console.log("🔗 查詢網址：", url);
 
   const res = await fetch(url, {
@@ -65,7 +65,7 @@ async function markAsSent(id) {
       'Content-Type': 'application/json',
       Prefer: 'return=representation'
     },
-    body: JSON.stringify({ has_sent_initial_email: true })
+    body: JSON.stringify({ hasSentInitialEmail: true })
   });
 
   if (!res.ok) {
