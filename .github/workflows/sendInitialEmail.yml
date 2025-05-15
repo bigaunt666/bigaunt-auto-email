@@ -1,0 +1,30 @@
+name: Send Initial Email
+
+on:
+  schedule:
+    - cron: "*/1 * * * *"  # 每 1 分鐘執行一次
+  workflow_dispatch:      # 可手動觸發
+
+jobs:
+  sendEmail:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run sendInitialEmail.js
+        run: node sendInitialEmail.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS: ${{ secrets.GMAIL_PASS }}
