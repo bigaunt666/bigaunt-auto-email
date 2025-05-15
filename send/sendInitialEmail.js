@@ -2,11 +2,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-console.log("https://ohvbljqsvlkvfjeslsyr.supabase.co", process.env.SUPABASE_URL);
-console.log("🚀 程式開始執行！");
-
 import fetch from 'node-fetch';
 import nodemailer from 'nodemailer';
+
+console.log("🚀 程式開始執行！");
+console.log("🔍 SUPABASE_URL =", process.env.SUPABASE_URL);
 
 // 2. Supabase & Gmail 設定（從環境變數讀取）
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -17,6 +17,8 @@ const GMAIL_PASS = process.env.GMAIL_PASS;
 // 3. 查詢尚未寄出的訂單
 async function fetchPendingOrders() {
   const url = `${SUPABASE_URL}/rest/v1/test2?has_sent_initial_email=eq.false`;
+  console.log("🔗 查詢網址：", url);
+
   const res = await fetch(url, {
     headers: {
       apikey: SUPABASE_KEY,
@@ -34,7 +36,7 @@ async function fetchPendingOrders() {
   }
 
   const data = await res.json();
-  console.log("Fetched orders:", data);
+  console.log("✅ 查詢結果：", data);
   return Array.isArray(data) ? data : [];
 }
 
@@ -75,6 +77,7 @@ async function markAsSent(id) {
 // 6. 主執行程式
 (async () => {
   const orders = await fetchPendingOrders();
+  console.log("⚠️ 取得的 orders：", orders);
 
   if (!Array.isArray(orders)) {
     console.error("❌ 錯誤：orders 不是陣列，無法處理。");
@@ -85,7 +88,7 @@ async function markAsSent(id) {
     const html = `
       <h2>感謝您的訂單！</h2>
       <p>請於 8 小時內完成匯款至以下帳號：</p>
-      <p><b>${order.buyerBankAccount}</b></p>
+      <<p><b>中國信託 822 / 034540522222</b></p>
       <p>完成後系統會自動判斷是否成功。</p>
     `;
     await sendEmail(order.buyerEmail, '【匯款通知】您的訂單已建立', html);
