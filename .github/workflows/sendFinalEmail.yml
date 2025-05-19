@@ -1,4 +1,4 @@
-name: Send Initial Email
+name: Send Final Email
 
 on:
   workflow_dispatch:      # 可手動觸發
