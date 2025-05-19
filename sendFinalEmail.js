@@ -81,11 +81,17 @@ async function resetOrder(id) {
 (async () => {
   const orders = await fetchPendingOrders();
 
+  let checkDuplicateArr = [];
+
   for (const order of orders) {
     if (!order.buyerEmail) {
       console.log(`⚠️ 訂單 ID ${order.id} 沒有填 buyerEmail，略過`);
       continue;
     }
+
+    if (!!~checkDuplicateArr.indexOf(order.buyerEmail)) {
+      continue;
+    } else checkDuplicateArr.push(order.buyerEmail)
 
     if (order.isDone === true) {
       // 寄成功信
