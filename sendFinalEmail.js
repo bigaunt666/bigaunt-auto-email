@@ -90,6 +90,13 @@ async function resetOrder(id) {
     }
 
     if (!!~checkDuplicateArr.indexOf(order.buyerEmail)) {
+      if (order.isDone === true) {
+        // 重複購買人不再次發信 但在這邊標記此隊伍 hasSentFinalEmail欄位
+        await markSuccess(order.id);
+      } else if (order.isDone === false) {
+        // 重複購買人不再次發信 但在這邊把此隊伍reset
+        await resetOrder(order.id);
+      }
       continue;
     } else checkDuplicateArr.push(order.buyerEmail)
 
