@@ -11,7 +11,7 @@ const GMAIL_PASS = process.env.GMAIL_PASS;
 
 // 3. 查詢所有尚未寄出最終通知的訂單
 async function fetchPendingOrders() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250519_TEST?hasSentFinalEmail=eq.false`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250524?hasSentFinalEmail=eq.false`, {
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
@@ -38,7 +38,7 @@ async function sendEmail(to, subject, html) {
 
 // 5. 成功：更新 hasSentFinalEmail 為 true
 async function markSuccess(id) {
-  await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250519_TEST?id=eq.${id}`, {
+  await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250524?id=eq.${id}`, {
     method: 'PATCH',
     headers: {
       apikey: SUPABASE_KEY,
@@ -65,7 +65,7 @@ async function resetOrder(id) {
     hasSentFinalEmail: null
   };
 
-  await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250519_TEST?id=eq.${id}`, {
+  await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250524?id=eq.${id}`, {
     method: 'PATCH',
     headers: {
       apikey: SUPABASE_KEY,
