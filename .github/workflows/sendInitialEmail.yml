@@ -1,8 +1,6 @@
 name: Send Initial Email
 
 on:
-  schedule:
-    - cron: "*/1 * * * *"  # 每 1 分鐘執行一次
   workflow_dispatch:      # 可手動觸發
 
 jobs:
