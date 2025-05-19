@@ -29,7 +29,7 @@ async function sendEmail(to, subject, html) {
   });
 
   await transporter.sendMail({
-    from: `"您的網站名稱" <${GMAIL_USER}>`,
+    from: `"Big Aunt's 團隊" <${GMAIL_USER}>`,
     to,
     subject,
     html
