@@ -19,8 +19,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run sendInitialEmail.js
-        run: node sendInitialEmail.js
+      - name: Run sendFinalEmail.js
+        run: node sendFinalEmail.js
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
