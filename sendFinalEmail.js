@@ -89,7 +89,7 @@ async function resetOrder(id) {
       continue;
     }
 
-    if (!!~checkDuplicateArr.indexOf(order.buyerEmail)) {
+    if (!!~checkDuplicateArr.indexOf(order.groupIdForSentEmail)) {
       if (order.isDone === true) {
         // 重複購買人不再次發信 但在這邊標記此隊伍 hasSentFinalEmail欄位
         await markSuccess(order.id);
@@ -98,7 +98,7 @@ async function resetOrder(id) {
         await resetOrder(order.id);
       }
       continue;
-    } else checkDuplicateArr.push(order.buyerEmail)
+    } else checkDuplicateArr.push(order.groupIdForSentEmail)
 
     if (order.isDone === true) {
       // 寄成功信
