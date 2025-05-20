@@ -9,9 +9,9 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const GMAIL_USER = process.env.GMAIL_USER;
 const GMAIL_PASS = process.env.GMAIL_PASS;
 
-// 3. 查詢目前的啟用表單名稱（from activeTable）
+// 3. 查詢目前啟用的表單名稱
 async function fetchActiveTableName() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/activeTable?isActive=eq.true`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/settings?isActive=eq.true`, {
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`
@@ -25,14 +25,15 @@ async function fetchActiveTableName() {
 
   const data = await res.json();
   if (!Array.isArray(data) || data.length === 0) {
-    throw new Error("⚠️ 尚未設定 activeTable 中的 isActive");
+    throw new Error("⚠️ 尚未設定 settings 中的 isActive = true");
   }
 
   return data[0].activeTable;
 }
 
 // 4. 查詢所有尚未寄出最終通知的訂單
-async function fetchPendingOrders(tableName) {
+async function fetchPendingOrders() {
+  const tableName = await fetchActiveTableName();
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?hasSentFinalEmail=eq.false`, {
     headers: {
       apikey: SUPABASE_KEY,
@@ -40,7 +41,9 @@ async function fetchPendingOrders(tableName) {
       Prefer: 'return=representation'
     }
   });
-  return await res.json();
+  const data = await res.json();
+  if (!Array.isArray(data)) throw new Error('取得訂單失敗');
+  return data;
 }
 
 // 5. 寄信功能
@@ -100,11 +103,10 @@ async function resetOrder(id, tableName) {
   });
 }
 
-// 8. 主程式
+// 8. 主程式邏輯
 (async () => {
+  const orders = await fetchPendingOrders();
   const tableName = await fetchActiveTableName();
-  const orders = await fetchPendingOrders(tableName);
-
   let checkDuplicateArr = [];
 
   for (const order of orders) {
@@ -113,7 +115,7 @@ async function resetOrder(id, tableName) {
       continue;
     }
 
-    if (!!~checkDuplicateArr.indexOf(order.groupIdForSentEmail)) {
+    if (checkDuplicateArr.includes(order.groupIdForSentEmail)) {
       if (order.isDone === true) {
         await markSuccess(order.id, tableName);
       } else if (order.isDone === false) {
