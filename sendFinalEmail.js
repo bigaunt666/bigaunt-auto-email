@@ -10,7 +10,7 @@ const GMAIL_USER = process.env.GMAIL_USER;
 const GMAIL_PASS = process.env.GMAIL_PASS;
 
 // 3. 查詢所有尚未寄出最終通知的訂單
-async function fetchPendingOrders() {
+async function fetchPendingOrders(tableName) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?hasSentFinalEmail=eq.false`, {
     headers: {
       apikey: SUPABASE_KEY,
@@ -37,7 +37,7 @@ async function sendEmail(to, subject, html) {
 }
 
 // 5. 成功：更新 hasSentFinalEmail 為 true
-async function markSuccess(id) {
+async function markSuccess(id, tableName) {
   await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${id}`, {
     method: 'PATCH',
     headers: {
@@ -51,7 +51,7 @@ async function markSuccess(id) {
 }
 
 // 6. 失敗：重置欄位
-async function resetOrder(id) {
+async function resetOrder(id, tableName) {
   const resetPayload = {
     buyerName: '',
     buyerPhone: '',
@@ -103,7 +103,8 @@ async function fetchActiveTableName() {
 
 
 (async () => {
-  const orders = await fetchPendingOrders();
+  const tableName = await fetchActiveTableName();
+  const orders = await fetchPendingOrders(tableName);
 
   let checkDuplicateArr = [];
 
