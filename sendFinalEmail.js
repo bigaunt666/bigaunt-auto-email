@@ -136,7 +136,7 @@ async function resetOrder(id, tableName) {
       console.log(`✅ 已寄成功信給 ${order.buyerEmail}`);
     } else if (order.isDone === false) {
       const html = `
-        <h2>訂單未完成匯款</h2>
+        <h2>嗨 ${order.buyerName}，訂單未完成匯款</h2>
         <p>由於您未完成匯款，您的訂單已取消，隊伍已釋出。</p>
       `;
       await sendEmail(order.buyerEmail, '【訂單取消通知】未完成匯款', html);
