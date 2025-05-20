@@ -128,7 +128,7 @@ async function resetOrder(id, tableName) {
 
     if (order.isDone === true) {
       const html = `
-        <h2>感謝您完成匯款</h2>
+        <h2>嗨 ${order.buyerName}，感謝您完成匯款！</h2>
         <p>您的訂單已確認成功，我們將安排處理。</p>
       `;
       await sendEmail(order.buyerEmail, '【訂單成功】感謝您完成匯款', html);
