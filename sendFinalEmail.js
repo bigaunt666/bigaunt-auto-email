@@ -11,7 +11,7 @@ const GMAIL_PASS = process.env.GMAIL_PASS;
 
 // 3. 查詢所有尚未寄出最終通知的訂單
 async function fetchPendingOrders() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250524?hasSentFinalEmail=eq.false`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?hasSentFinalEmail=eq.false`, {
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
@@ -38,7 +38,7 @@ async function sendEmail(to, subject, html) {
 
 // 5. 成功：更新 hasSentFinalEmail 為 true
 async function markSuccess(id) {
-  await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250524?id=eq.${id}`, {
+  await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${id}`, {
     method: 'PATCH',
     headers: {
       apikey: SUPABASE_KEY,
@@ -66,7 +66,7 @@ async function resetOrder(id) {
     hasSentFinalEmail: null
   };
 
-  await fetch(`${SUPABASE_URL}/rest/v1/TeamsForm_20250524?id=eq.${id}`, {
+  await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${id}`, {
     method: 'PATCH',
     headers: {
       apikey: SUPABASE_KEY,
@@ -79,6 +79,29 @@ async function resetOrder(id) {
 }
 
 // 7. 主程式邏輯
+
+async function fetchActiveTableName() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/activeTable?isActive=eq.true`, {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    }
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error('查詢 activeTable 失敗: ' + text);
+  }
+
+  const data = await res.json();
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error("⚠️ 尚未設定 activeTable 中的 isActive");
+  }
+
+  return data[0].activeTable;
+}
+
+
 (async () => {
   const orders = await fetchPendingOrders();
 
