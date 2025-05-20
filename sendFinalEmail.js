@@ -59,6 +59,7 @@ async function resetOrder(id) {
     "711Name": '',
     submitTaiwanTime: '',
     buyerEmail: '',
+    groupIdForSentEmail: '',
     submitTime: null,
     isDone: null,
     isLock: null,
