@@ -9,7 +9,29 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const GMAIL_USER = process.env.GMAIL_USER;
 const GMAIL_PASS = process.env.GMAIL_PASS;
 
-// 3. 查詢所有尚未寄出最終通知的訂單
+// 3. 查詢目前的啟用表單名稱（from activeTable）
+async function fetchActiveTableName() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/activeTable?isActive=eq.true`, {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    }
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error('查詢 activeTable 失敗: ' + text);
+  }
+
+  const data = await res.json();
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error("⚠️ 尚未設定 activeTable 中的 isActive");
+  }
+
+  return data[0].activeTable;
+}
+
+// 4. 查詢所有尚未寄出最終通知的訂單
 async function fetchPendingOrders(tableName) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?hasSentFinalEmail=eq.false`, {
     headers: {
@@ -21,7 +43,7 @@ async function fetchPendingOrders(tableName) {
   return await res.json();
 }
 
-// 4. 寄信功能
+// 5. 寄信功能
 async function sendEmail(to, subject, html) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -36,7 +58,7 @@ async function sendEmail(to, subject, html) {
   });
 }
 
-// 5. 成功：更新 hasSentFinalEmail 為 true
+// 6. 成功：更新 hasSentFinalEmail 為 true
 async function markSuccess(id, tableName) {
   await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?id=eq.${id}`, {
     method: 'PATCH',
@@ -50,7 +72,7 @@ async function markSuccess(id, tableName) {
   });
 }
 
-// 6. 失敗：重置欄位
+// 7. 失敗：重置欄位
 async function resetOrder(id, tableName) {
   const resetPayload = {
     buyerName: '',
@@ -78,30 +100,7 @@ async function resetOrder(id, tableName) {
   });
 }
 
-// 7. 主程式邏輯
-
-async function fetchActiveTableName() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/activeTable?isActive=eq.true`, {
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`
-    }
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error('查詢 activeTable 失敗: ' + text);
-  }
-
-  const data = await res.json();
-  if (!Array.isArray(data) || data.length === 0) {
-    throw new Error("⚠️ 尚未設定 activeTable 中的 isActive");
-  }
-
-  return data[0].activeTable;
-}
-
-
+// 8. 主程式
 (async () => {
   const tableName = await fetchActiveTableName();
   const orders = await fetchPendingOrders(tableName);
@@ -116,32 +115,30 @@ async function fetchActiveTableName() {
 
     if (!!~checkDuplicateArr.indexOf(order.groupIdForSentEmail)) {
       if (order.isDone === true) {
-        // 重複購買人不再次發信 但在這邊標記此隊伍 hasSentFinalEmail欄位
-        await markSuccess(order.id);
+        await markSuccess(order.id, tableName);
       } else if (order.isDone === false) {
-        // 重複購買人不再次發信 但在這邊把此隊伍reset
-        await resetOrder(order.id);
+        await resetOrder(order.id, tableName);
       }
       continue;
-    } else checkDuplicateArr.push(order.groupIdForSentEmail)
+    } else {
+      checkDuplicateArr.push(order.groupIdForSentEmail);
+    }
 
     if (order.isDone === true) {
-      // 寄成功信
       const html = `
         <h2>感謝您完成匯款</h2>
         <p>您的訂單已確認成功，我們將安排處理。</p>
       `;
       await sendEmail(order.buyerEmail, '【訂單成功】感謝您完成匯款', html);
-      await markSuccess(order.id);
+      await markSuccess(order.id, tableName);
       console.log(`✅ 已寄成功信給 ${order.buyerEmail}`);
     } else if (order.isDone === false) {
-      // 寄失敗信
       const html = `
         <h2>訂單未完成匯款</h2>
         <p>由於您未完成匯款，您的訂單已取消，隊伍已釋出。</p>
       `;
       await sendEmail(order.buyerEmail, '【訂單取消通知】未完成匯款', html);
-      await resetOrder(order.id);
+      await resetOrder(order.id, tableName);
       console.log(`❌ 已寄失敗信並釋出隊伍 ${order.name}`);
     }
   }
