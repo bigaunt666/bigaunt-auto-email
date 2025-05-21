@@ -144,8 +144,8 @@ async function resetOrder(id, tableName) {
      const allTeamOrders = await teamRes.json();
      const teamNames = allTeamOrders.map(o => o.name).join('、');
       const html = `
-        <div>嗨 王大明，感謝您完成匯款！
-        您此筆訂單購買的隊伍有：國王隊、火箭隊。 我們已確認您的付款。 本團直播日期預計為 5/24
+        <div>嗨 王大明，感謝您完成
+        您的隊伍有：國王隊、火箭隊。 本團直播日期預計為 5/24
         — Big Aunt’s 團隊敬上</div>
         `;
       await sendEmail(order.buyerEmail, '【訂單成功】感謝您完成訂單', html);
