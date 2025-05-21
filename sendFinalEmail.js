@@ -127,10 +127,22 @@ async function resetOrder(id, tableName) {
     }
 
     if (order.isDone === true) {
+      // 🔍 查詢該 groupId 所有隊伍名稱
+     const teamRes = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?groupIdForSentEmail=eq.${order.groupIdForSentEmail}`, {
+      headers: {
+     apikey: SUPABASE_KEY,
+     Authorization: `Bearer ${SUPABASE_KEY}`,
+     Prefer: 'return=representation'
+     }
+     });
+     const allTeamOrders = await teamRes.json();
+     const teamNames = allTeamOrders.map(o => o.name).join('、');
       const html = `
-        <h2>嗨 ${order.buyerName}，感謝您完成匯款！</h2>
-        <p>您的訂單已確認成功，我們將安排處理。</p>
-      `;
+         <h2>嗨 ${order.buyerName}，感謝您完成匯款！</h2>
+         <p>您這次參加的隊伍有：<b>${teamNames}</b>。</p>
+         <p>我們已確認您的付款，會在開團後直播開卡，並將卡片安全保留至您申請出貨。</p>
+         <p style="margin-top: 20px;">— Big Aunt’s 卡團 團隊 敬上</p>
+        `;
       await sendEmail(order.buyerEmail, '【訂單成功】感謝您完成匯款', html);
       await markSuccess(order.id, tableName);
       console.log(`✅ 已寄成功信給 ${order.buyerEmail}`);
