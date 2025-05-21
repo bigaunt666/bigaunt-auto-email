@@ -144,7 +144,7 @@ async function resetOrder(id, tableName) {
      const allTeamOrders = await teamRes.json();
      const teamNames = allTeamOrders.map(o => o.name).join('、');
       const html = `
-        <h2>您好，Big Aunt's 團隊敬啟：</h2>
+        <p>您好，Big Aunt's 團隊敬啟：</p>
 
 <p style="font-size: 16px;">
 我們近期注意到，您所參與的活動內容有一部分與預期存在出入，因此特此與您聯繫說明並表達關切。
