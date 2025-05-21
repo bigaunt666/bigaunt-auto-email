@@ -139,9 +139,9 @@ async function resetOrder(id, tableName) {
      const teamNames = allTeamOrders.map(o => o.name).join('、');
       const html = `
          <h2>嗨 ${order.buyerName}，感謝您完成匯款！</h2>
-         <style="font-size:30px;">您此筆訂單購買的隊伍有：<b>${teamNames}</b>。</p>
-         <style="font-size:30px;">我們已確認您的付款。</p>
-         <style="font-size:30px;">本團直播日期預計為 5/24</p>
+         <p style="font-size:30px;">您此筆訂單購買的隊伍有：<b>${teamNames}</b>。</p>
+         <p style="font-size:30px;">我們已確認您的付款。</p>
+         <p style="font-size:30px;">本團直播日期預計為 5/24</p>
          <p style="margin-top: 30px;">— Big Aunt’s  團隊敬上</p>
         `;
       await sendEmail(order.buyerEmail, '【訂單成功】感謝您完成匯款', html);
