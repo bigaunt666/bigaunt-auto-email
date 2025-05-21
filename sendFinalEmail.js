@@ -1,13 +1,14 @@
 // 1. 載入必要模組與環境變數
 import fetch from 'node-fetch';
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import 'dotenv/config';
 
 // 2. 環境變數設定
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const GMAIL_USER = process.env.GMAIL_USER;
-const GMAIL_PASS = process.env.GMAIL_PASS;
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+
+sgMail.setApiKey(SENDGRID_API_KEY);
 
 // 3. 查詢目前啟用的表單名稱
 async function fetchActiveTableName() {
@@ -48,17 +49,22 @@ async function fetchPendingOrders() {
 
 // 5. 寄信功能
 async function sendEmail(to, subject, html) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: GMAIL_USER, pass: GMAIL_PASS }
-  });
-
-  await transporter.sendMail({
-    from: `"Big Aunt's 團隊" <${GMAIL_USER}>`,
+  const msg = {
     to,
+    from: {
+      email: 'bigaunt666@gmail.com',
+      name: "Big Aunt's 團隊"
+    },
     subject,
     html
-  });
+  };
+
+  try {
+    await sgMail.send(msg);
+  } catch (error) {
+    console.error('❌ SendGrid 寄信失敗:', error.response?.body || error.message);
+    throw error;
+  }
 }
 
 // 6. 成功：更新 hasSentFinalEmail 為 true
