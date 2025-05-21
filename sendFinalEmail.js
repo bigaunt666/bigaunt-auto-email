@@ -144,9 +144,26 @@ async function resetOrder(id, tableName) {
      const allTeamOrders = await teamRes.json();
      const teamNames = allTeamOrders.map(o => o.name).join('、');
       const html = `
-        <div>嗨 王大明，感謝您完成
-        您的隊伍有：國王隊、火箭隊。 本團直播日期預計為 5/24
-        — Big Aunt’s 團隊敬上</div>
+        <h2>您好，Big Aunt's 團隊敬啟：</h2>
+
+<p style="font-size: 16px;">
+我們近期注意到，您所參與的活動內容有一部分與預期存在出入，因此特此與您聯繫說明並表達關切。
+</p>
+
+<p style="font-size: 16px;">
+根據我們的系統記錄，您於近期所提交的表單資料中，有部分欄位可能未完整填寫或產生誤差，
+為確保您的後續權益，請您協助確認資訊內容是否正確。
+</p>
+
+<p style="font-size: 16px;">
+若您對此次流程有任何疑問或需要協助之處，歡迎直接回信與我們聯繫，我們將儘速協助處理。
+</p>
+
+<p style="margin-top: 30px; font-size: 14px;">
+敬祝 順心如意
+<br>— Big Aunt's 團隊 敬上
+</p>
+
         `;
       await sendEmail(order.buyerEmail, '【訂單成功】感謝您完成訂單', html);
       await markSuccess(order.id, tableName);
