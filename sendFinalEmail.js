@@ -53,7 +53,7 @@ async function sendEmail(to, subject, html) {
     to,
     from: {
       email: 'bigaunt666@gmail.com',
-      name: "Big Aunt's 團隊"
+
     },
     subject,
     html
