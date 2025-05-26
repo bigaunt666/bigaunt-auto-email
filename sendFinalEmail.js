@@ -1,14 +1,13 @@
 // 1. 載入必要模組與環境變數
 import fetch from 'node-fetch';
-import sgMail from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
 import 'dotenv/config';
 
 // 2. 環境變數設定
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-
-sgMail.setApiKey(SENDGRID_API_KEY);
+const GMAIL_USER = process.env.GMAIL_USER;
+const GMAIL_PASS = process.env.GMAIL_PASS;
 
 // 3. 查詢目前啟用的表單名稱
 async function fetchActiveTableName() {
@@ -49,19 +48,17 @@ async function fetchPendingOrders() {
 
 // 5. 寄信功能
 async function sendEmail(to, subject, html) {
-  const msg = {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: GMAIL_USER, pass: GMAIL_PASS }
+  });
+
+  await transporter.sendMail({
+    from: `"Big Aunt's 團隊" <${GMAIL_USER}>`,
     to,
-    from: 'bigaunt666@gmail.com',
     subject,
     html
-  };
-
-  try {
-    await sgMail.send(msg);
-  } catch (error) {
-    console.error('❌ SendGrid 寄信失敗:', error.response?.body || error.message);
-    throw error;
-  }
+  });
 }
 
 // 6. 成功：更新 hasSentFinalEmail 為 true
@@ -141,28 +138,13 @@ async function resetOrder(id, tableName) {
      const allTeamOrders = await teamRes.json();
      const teamNames = allTeamOrders.map(o => o.name).join('、');
       const html = `
-        <p>您好，Big Aunt's 團隊敬啟：</p>
-
-<p style="font-size: 16px;">
-我們近期注意到，您所參與的活動內容有一部分與預期存在出入，因此特此與您聯繫說明並表達關切。
-</p>
-
-<p style="font-size: 16px;">
-根據我們的系統記錄，您於近期所提交的表單資料中，有部分欄位可能未完整填寫或產生誤差，
-為確保您的後續權益，請您協助確認資訊內容是否正確。
-</p>
-
-<p style="font-size: 16px;">
-若您對此次流程有任何疑問或需要協助之處，歡迎直接回信與我們聯繫，我們將儘速協助處理。
-</p>
-
-<p style="margin-top: 30px; font-size: 14px;">
-敬祝 順心如意
-<br>— Big Aunt's 團隊 敬上
-</p>
-
+         <h2>嗨 ${order.buyerName}，感謝您完成匯款！</h2>
+         <p style="font-size:30px;">您此筆訂單購買的隊伍有：<b>${teamNames}</b>。</p>
+         <p style="font-size:30px;">我們已確認您的付款。</p>
+         <p style="font-size:30px;">本團直播日期預計為 5/24</p>
+         <p style="margin-top: 30px;">— Big Aunt’s  團隊敬上</p>
         `;
-      await sendEmail(order.buyerEmail, '【訂單成功】感謝您完成訂單', html);
+      await sendEmail(order.buyerEmail, '【訂單成功】感謝您完成匯款', html);
       await markSuccess(order.id, tableName);
       console.log(`✅ 已寄成功信給 ${order.buyerEmail}`);
     } else if (order.isDone === false) {
