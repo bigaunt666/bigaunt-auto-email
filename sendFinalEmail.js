@@ -54,7 +54,7 @@ async function sendEmail(to, subject, html) {
   });
 
   await transporter.sendMail({
-    from: `"Big Aunt's 團隊" <${GMAIL_USER}>`,
+    from: `<${GMAIL_USER}>`,
     to,
     subject,
     html
