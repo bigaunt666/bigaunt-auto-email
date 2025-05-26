@@ -51,10 +51,7 @@ async function fetchPendingOrders() {
 async function sendEmail(to, subject, html) {
   const msg = {
     to,
-    from: {
-      email: 'bigaunt666@gmail.com',
-
-    },
+    from: 'bigaunt666@gmail.com',
     subject,
     html
   };
